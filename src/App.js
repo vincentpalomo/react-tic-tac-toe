@@ -18,6 +18,7 @@ const lines = [
 
 function App() {
   const [squares, setSquares] = useState(defaultSquares());
+  const [winner, setWinner] = useState(null);
 
   useEffect(() => {
     const isComputerTurn =
@@ -37,10 +38,10 @@ function App() {
     const playerWon = linesSet('X', 'X', 'X').length > 0;
     const computerWon = linesSet('O', 'O', 'O').length > 0;
     if (playerWon) {
-      alert('player won');
+      setWinner('X');
     }
     if (computerWon) {
-      alert('computer won');
+      setWinner('O');
     }
     const computerMove = (index) => {
       let newSquares = squares;
@@ -48,14 +49,6 @@ function App() {
       setSquares([...newSquares]);
     };
     if (isComputerTurn) {
-      const blockTurn = linesSet('X', 'X', null);
-      if (blockTurn.length > 0) {
-        const blockIndex = blockTurn[0].filter(
-          (index) => squares[index] === null
-        )[0];
-        computerMove(blockIndex);
-        return;
-      }
       const winningLines = linesSet('O', 'O', null);
       if (winningLines.length > 0) {
         const winIndex = winningLines[0].filter(
@@ -64,6 +57,23 @@ function App() {
         computerMove(winIndex);
         return;
       }
+
+      const blockTurn = linesSet('X', 'X', null);
+      if (blockTurn.length > 0) {
+        const blockIndex = blockTurn[0].filter(
+          (index) => squares[index] === null
+        )[0];
+        computerMove(blockIndex);
+        return;
+      }
+
+      const linesContinue = linesSet('O', null, null);
+      if (linesContinue.length > 0) {
+        computerMove(
+          linesContinue[0].filter((index) => squares[index] === null)[0]
+        );
+      }
+
       const randomIndex =
         emptyIndex[Math.ceil(Math.random() * emptyIndex.length)];
       computerMove(randomIndex);
@@ -91,6 +101,10 @@ function App() {
           />
         ))}
       </Board>
+      {!!winner && winner === 'X' && (
+        <div className='result green'>You WON</div>
+      )}
+      {!!winner && winner === 'O' && <div className='result red'>You LOST</div>}
     </main>
   );
 }
